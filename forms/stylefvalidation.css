@@ -1,0 +1,88 @@
+
+body{
+	background-image: url(holi-colors.jpg);
+	background-repeat: no-repeat;
+	background-position:center;
+	background-attachment: fixed;
+	background-size: cover;
+	font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+	
+}
+#outerDiv{
+	max-width: 650px;
+	max-height: 500px;
+	margin:auto;
+	/*border-radius: 15px;*/
+	/*border:2px solid #000066;*/
+	background: rgba(255,255,255,0.6);
+	position: absolute;
+	display: inline-block;
+	top:0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	box-shadow: 5px 5px 250px -45px rgba(255,255,255,0.6);
+}
+input[type=text] {
+	
+	padding: 10px 20px;
+	/*margin: auto;*/
+			/*top:0;
+			bottom: 0;
+			right: 0;
+			left: 0;*/
+			background: rgba(255,255,255,0.8);
+			font-size: 20px;
+			box-sizing: border-box;
+			border: 2px solid #ffffff;
+			/*-webkit-transition: 0.5s;*/
+			transition: 0.6s;
+			outline: none;
+			margin: 5px;
+			color: #000066;
+		}
+
+		input[type=text]:focus {
+			border: 2px solid #000066;
+			background: rgba(255,255,255,1);
+
+		}
+		form{
+			margin:48px auto;
+			position: relative;
+			width: 450px;
+		}
+		label{
+			font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+			font-size: 28px;
+			color: #000033;
+			font-style: bold;
+
+		}
+		.button {
+			background: rgba(255,255,255,0.6);
+			font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+			padding: 11px 32px;
+			text-align: center;
+			display: inline-block;
+			font-size: 27px;
+			margin: 70px auto;
+			text-decoration: bold;
+			position: absolute;
+			right: 32%;
+			transition-duration: 0.4s;
+			cursor: pointer;
+			color: #000033;
+			border: 2px solid #000033;
+		}
+		.button:hover {
+			background-color: #ffffff;
+			color: #00004d;
+			transition-duration: 0.5s;
+		}
+		hr{
+			border-size:1px;
+			border-color: white;
+			border-style: double;
+		}
+

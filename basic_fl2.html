@@ -1,0 +1,343 @@
+	<!DOCTYPE html>
+	<html>
+
+	<head>
+		<title></title>
+	</head>
+
+	<meta charset="utf-8">
+	<style>
+
+	/*.links line {
+	stroke: #999;
+	stroke-opacity: 0.6;
+}*/
+
+.nodes circle {
+	stroke: #fff;
+	fill: #ccc;
+	stroke-width: 1.5px;
+	cursor:       pointer;
+	/*fill:         #ccc;*/
+	stroke:       #fff;
+}
+
+#graph {
+	float: left;
+	position: relative;
+}
+#notes {
+	float: left;
+	margin-left: 20px;
+}
+h1, h2 {
+	margin: 0;
+}
+h1 {
+	font-size: 1.4em;
+	margin-bottom: 0.2em;
+}
+h2 {
+	font-size: 1.1em;
+	margin-bottom: 1em;
+}
+.artwork img {
+	border: 1px solid #fff;
+	-webkit-box-shadow: 0 3px 5px rgba(0,0,0,.3);
+	-moz-box-shadow: rgba(0,0,0,.3) 0 3px 5px;
+	border-color: #a2a2a2    9;
+}
+ul {
+	list-style: none;
+	padding-left: 0;
+}
+li {
+	padding-top: 0.2em;
+}
+
+.labelNode text, text.labelNode {
+	cursor:       pointer;
+	fill:        #444;
+	font-size:   11px;
+	font-weight: normal;
+}
+ul.connection {
+	background-color: #f0f0f0;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+	cursor: pointer;
+	font-size: 11px;
+	font-weight: normal;
+	padding: 10px;
+	position: absolute;
+}
+ul.connection:before,
+ul.connection:after {
+	border: 10px solid transparent;
+	content: '';
+	position: absolute;
+}
+ul.connection:before {
+	border-bottom-color: #f0f0f0;
+	top: -19px;
+	left: 20px;
+	z-index: 2;
+}
+ul.connection:after {
+	border-bottom-color: rgba(0, 0, 0, 0.2);
+	top: -21px;
+	left: 20px;
+	z-index: 1;
+}
+
+
+</style>
+
+<body>
+	<div id='container'>
+		<div id='graph'></div>
+		<div id='notes'></div>
+	</div>
+
+
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+
+
+	<script type="text/javascript">
+
+	// Define the dimensions of the visualization. We're using
+	// a size that's convenient for displaying the graphic on
+	// http://jsDataV.is
+
+	
+
+	// Find the main graph container.
+
+	var graph = d3.select('#graph');
+
+	// Create the SVG container for the visualization and
+	// define its dimensions.
+
+	var svg = graph.append('svg')
+	.attr('width', width)
+	.attr('height', height);
+
+
+	var width = 960,
+	height = 600;
+	// Visual properties of the graph are next. We need to make
+	// those that are going to be animated accessible to the
+	// JavaScript.
+
+	var labelFill = '#444';
+	var adjLabelFill = '#aaa';
+	var edgeStroke = '#aaa';
+	var nodeFill = '#ccc';
+	var nodeRadius = 10;
+	var selectedNodeRadius = 30;
+
+	
+	// // Select the container for the notes and dimension it.
+
+	var notes = d3.select('#notes')
+	.style({
+		'width': 1160-width + 'px',
+		'height': height + 'px'
+	});
+
+	// Utility function to update the position properties
+	// of an arbitrary node that's part of a D3 selection.
+
+
+	var positionNode = function(node) {
+		node.attr('transform', function(d) {
+			return 'translate(' + d.x + ',' + d.y + ')';
+		});
+	};
+
+
+	var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+
+	var simulation = d3.forceSimulation()
+	.force("charge", d3.forceManyBody())
+	.force("center", d3.forceCenter(width / 2, height / 2));
+
+	d3.json("data_force_layout.json", function(error, graph) {
+		if (error) throw error;
+
+		var node = svg.append("g")
+		.attr("class", "nodes")
+		.selectAll("circle")
+		.data(graph.nodes)
+		.enter().append("circle")
+		.attr("r", 10)
+		.call(positionNode)
+		.attr("fill", function(d) { return color(d.id); })
+		.call(d3.drag()
+			.on("start", dragstarted)
+			.on("drag", dragged)
+			.on("end", dragended));		
+
+		node.append("title")
+		.text(function(d) { return d.id; });
+
+		simulation
+		.nodes(graph.nodes)
+		.on("tick", ticked);
+
+		function ticked() {
+
+			node
+			.attr("cx", function(d) { return d.x; })
+			.attr("cy", function(d) { return d.y; });
+		}
+
+	});
+
+
+	// Next up are the nodes.
+
+	// var nodeSelection = svg.selectAll('.node')
+	// .data(graph.nodes)
+	// .enter()
+	// .append('g')
+	// .classed('nodes', true)
+	// .call(positionNode);
+
+	// nodeSelection.append('circle')
+	// .attr('r', nodeRadius)
+	// .attr('data-node-index', function(d,i) { return i;})
+	// .style('fill', nodeFill)
+
+	// Now that we have our main selections (edges and
+	// nodes), we can create some subsets of those
+	// selections that will be helpful. Those subsets
+	// will be tied to individual nodes, so we'll
+	// start by iterating through them. We do that
+	// in two separate passes.
+
+
+	// Update the posistions of the nodes and edges.
+
+	// Create the main force layout.
+
+	var force = d3.layout.force()
+	.size([width, height])
+	.nodes(nodes)
+	.charge(-500);
+
+
+	// Let users drag the nodes.
+
+	nodeSelection.call(force.drag);
+
+	// Function to handle clicks on node elements
+
+	var nodeClicked = function(node) {
+
+	// Ignore events based on dragging.
+
+	if (d3.event.defaultPrevented) return;
+
+	// Remember whether or not the clicked
+	// node is currently selected.
+
+	var selected = node.selected;
+
+	// Keep track of the desired text color.
+
+	var fillColor;
+
+	// In all cases we start by resetting
+	// all the nodes and edges to their
+	// de-selected state. We may override
+	// this transition for some nodes and
+	// edges later.
+
+	nodeSelection
+	.each(function(node) { node.selected = false; })
+	.selectAll('circle')
+	.transition()
+	.attr('r', nodeRadius)
+	.style('fill', nodeFill);
+
+	if (!selected) {
+
+	// And finally, transition the node itself.
+
+	d3.selectAll('circle[data-node-index="'+node.index+'"]')
+	.transition()
+	.attr('r', selectedNodeRadius)
+	.style('fill', node.color);
+
+}
+
+	// Toggle the selection state for the node.
+
+	node.selected = !selected;
+
+};
+
+	// Handle clicks on the nodes.
+
+	nodeSelection.on('click', nodeClicked);
+
+	labelSelection.on('click', function(pseudonode) {
+		nodeClicked(pseudonode.node);
+	});
+
+
+	// Animate the force layout.
+
+	force.on('tick', function() {
+
+	// Constrain all the nodes to remain in the
+	// graph container.
+
+	nodeSelection.each(function(node) {
+		node.x = Math.max(node.x, 2*selectedNodeRadius);
+		node.y = Math.max(node.y, 2*selectedNodeRadius);
+		node.x = Math.min(node.x, width-2*selectedNodeRadius);
+		node.y = Math.min(node.y, height-2*selectedNodeRadius);
+	});
+
+	// Update the posistions of the nodes and edges.
+
+	nodeSelection.call(positionNode);
+
+
+});
+
+
+
+	function dragstarted(d) {
+		if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+		d.fx = d.x;
+		d.fy = d.y;
+	}
+
+	function dragged(d) {
+		d.fx = d3.event.x;
+		d.fy = d3.event.y;
+	}
+
+	function dragended(d) {
+		if (!d3.event.active) simulation.alphaTarget(0);
+		d.fx = null;
+		d.fy = null;
+	}
+
+
+	// Start the layout computations.
+	force.start();
+
+
+
+</script>
+
+
+
+</body>
+</html>
